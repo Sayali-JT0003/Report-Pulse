@@ -1,0 +1,12 @@
+streamlit
+openai
+streamlit-chat
+llama-index
+tiktoken
+langchain
+PyPDF2
+transformers
+torch
+redis
+pypdf
+pycryptodome
