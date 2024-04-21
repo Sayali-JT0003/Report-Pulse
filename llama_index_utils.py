@@ -9,29 +9,26 @@ from prompts import SUMMARY_PROMPT
 import redis
 import hashlib
 from llama_index import StorageContext, load_index_from_storage
-import openai
+from openai import OpenAI
 
-openai.api_key = os.environ["OPENAI_API_KEY"]
+client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+
 # Connect to Redis
 r = redis.Redis(host='localhost', port=6379, db=0)
 
 def get_completion(prompt, model="gpt-3.5-turbo"):
     messages = [{"role": "user", "content": prompt}]
-    response = openai.ChatCompletion.create(
-        model=model,
-        messages=messages,
-        temperature=0, # this is the degree of randomness of the model's output
-    )
-    return response.choices[0].message["content"]
+    response = client.chat.completions.create(model=model,
+    messages=messages,
+    temperature=0)
+    return response.choices[0].message.content
 
 def get_completion_from_messages(messages, model="gpt-3.5-turbo", temperature=0):
-    response = openai.ChatCompletion.create(
-        model=model,
-        messages=messages,
-        temperature=temperature, # this is the degree of randomness of the model's output
-    )
+    response = client.chat.completions.create(model=model,
+    messages=messages,
+    temperature=temperature)
 #     print(str(response.choices[0].message))
-    return response.choices[0].message["content"]
+    return response.choices[0].message.content
 
 class ReportPulseAssistent:
 
@@ -51,7 +48,7 @@ class ReportPulseAssistent:
         self.msgContext =  [  
             {'role':'system', 'content': self.system_prompt},    
             {'role':'user', 'content':f'summarise the report in laymen term with {lang} language.'}]
-        
+
         if not use_openai:
             self.index = self.get_index(self.documents)
             self.chat_engine = self.index.as_chat_engine(verbose=True)
@@ -78,7 +75,7 @@ class ReportPulseAssistent:
         except Exception as e:
             index = GPTVectorStoreIndex.from_documents(documents)
             index.storage_context.persist()
-        
+
         return index
 
     def get_next_message(self, prompt=SUMMARY_PROMPT, lang="ENGLISH", prompt_type='summary', use_openai=True):
