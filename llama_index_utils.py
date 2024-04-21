@@ -1,5 +1,5 @@
 import os
-from llama_index import GPTVectorStoreIndex, SimpleDirectoryReader
+from llama_index.core import GPTVectorStoreIndex, SimpleDirectoryReader
 from tenacity import (
     retry,
     stop_after_attempt,
@@ -8,7 +8,7 @@ from tenacity import (
 from prompts import SUMMARY_PROMPT
 import redis
 import hashlib
-from llama_index import StorageContext, load_index_from_storage
+from llama_index.core import StorageContext, load_index_from_storage
 from openai import OpenAI
 
 client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
